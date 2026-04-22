@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ColorProfile } from "@/lib/result-engine";
 import { ResultVariant } from "@/lib/result-variants";
+import { getSeason } from "@/lib/seasons";
 import { PaletteSwatch } from "./PaletteSwatch";
+import { ShareCard } from "./ShareCard";
 
 interface ResultsDisplayProps {
   profile: ColorProfile;
@@ -62,24 +65,76 @@ function ProfileDimensionCard({
 }
 
 export function ResultsDisplay({ profile, variant, firstName, onBuildWardrobe }: ResultsDisplayProps) {
+  const [showShareCard, setShowShareCard] = useState(false);
+  const season = getSeason(variant.key);
+
   return (
     <div className="w-full">
-      {/* Personalized greeting */}
+      {/* Season name + share */}
       <motion.div
         className="text-center mb-10"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <p className="text-xs font-medium tracking-[0.2em] uppercase mb-3" style={{ color: "#A07850" }}>
+        <p className="text-xs font-medium tracking-[0.2em] uppercase mb-4" style={{ color: "#A07850" }}>
           {firstName ? `${firstName}'s` : "Your"} Color Profile
         </p>
-        <h2
-          className="text-2xl sm:text-3xl font-semibold mb-4 leading-snug"
+
+        {/* Season badge */}
+        <motion.div
+          className="inline-flex flex-col items-center mb-5"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <span
+            className="text-xs font-medium tracking-[0.2em] uppercase mb-2"
+            style={{ color: "#9E856A" }}
+          >
+            Your Season
+          </span>
+          <h2
+            className="text-4xl sm:text-5xl font-semibold leading-tight"
+            style={{ fontFamily: "var(--font-serif)", color: "#1E1A16" }}
+          >
+            {season.name}
+          </h2>
+          <p className="text-sm mt-2" style={{ color: "#7A6A5A" }}>
+            {season.tagline}
+          </p>
+        </motion.div>
+
+        {/* Share button */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.25 }}
+        >
+          <button
+            onClick={() => setShowShareCard(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-medium tracking-wide transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] mb-8"
+            style={{
+              border: "1.5px solid #C4A882",
+              color: "#A07850",
+              backgroundColor: "transparent",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+              <polyline points="16 6 12 2 8 6"/>
+              <line x1="12" y1="2" x2="12" y2="15"/>
+            </svg>
+            Share My Season
+          </button>
+        </motion.div>
+
+        <h3
+          className="text-lg sm:text-xl font-semibold mb-3 leading-snug"
           style={{ fontFamily: "var(--font-serif)", color: "#1E1A16" }}
         >
           {variant.headline}
-        </h2>
+        </h3>
         <p
           className="text-sm leading-relaxed max-w-xl mx-auto"
           style={{ color: "#5C5248" }}
@@ -87,6 +142,15 @@ export function ResultsDisplay({ profile, variant, firstName, onBuildWardrobe }:
           {variant.insight}
         </p>
       </motion.div>
+
+      {showShareCard && (
+        <ShareCard
+          variant={variant}
+          season={season}
+          firstName={firstName}
+          onClose={() => setShowShareCard(false)}
+        />
+      )}
 
       {/* Profile dimensions */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-12">
